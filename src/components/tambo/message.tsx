@@ -967,7 +967,10 @@ function formatTextContent(
   if (!text) return null;
 
   try {
-    const parsed = JSON.parse(text);
+    const parsed = tryParseJsonFromText(text);
+    if (parsed == null) {
+      throw new Error("not-json");
+    }
     return (
       <pre
         className={cn(
@@ -993,6 +996,48 @@ function formatTextContent(
 export type MessageRenderedComponentAreaProps =
   React.HTMLAttributes<HTMLDivElement>;
 
+function tryParseJsonFromText(text: string): any | null {
+  const trimmed = text.trim();
+  if (!trimmed) return null;
+
+  const looksLikeJsonStart = trimmed.startsWith("{") || trimmed.startsWith("[");
+  if (!looksLikeJsonStart) return null;
+
+  const looksLikeJsonEnd = trimmed.endsWith("}") || trimmed.endsWith("]");
+  if (!looksLikeJsonEnd) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(trimmed);
+  } catch {
+    // Attempt to recover if JSON is embedded in surrounding text
+    const firstObj = trimmed.indexOf("{");
+    const lastObj = trimmed.lastIndexOf("}");
+    if (firstObj !== -1 && lastObj !== -1 && lastObj > firstObj) {
+      const candidate = trimmed.slice(firstObj, lastObj + 1);
+      try {
+        return JSON.parse(candidate);
+      } catch {
+        // ignore
+      }
+    }
+
+    const firstArr = trimmed.indexOf("[");
+    const lastArr = trimmed.lastIndexOf("]");
+    if (firstArr !== -1 && lastArr !== -1 && lastArr > firstArr) {
+      const candidate = trimmed.slice(firstArr, lastArr + 1);
+      try {
+        return JSON.parse(candidate);
+      } catch {
+        // ignore
+      }
+    }
+
+    return null;
+  }
+}
+
 function getToolResponseText(message: TamboThreadMessage | null): string | null {
   if (!message?.content) return null;
   if (typeof message.content === "string") return message.content;
@@ -1016,7 +1061,7 @@ function inferRenderedComponentFromTool(
     if (!raw) return null;
 
     try {
-      const parsed = JSON.parse(raw);
+      const parsed = tryParseJsonFromText(raw);
       if (!parsed || typeof parsed !== "object") return null;
       return (
         <div key={`nvl-${toolResponse?.id}`}>
@@ -1037,7 +1082,7 @@ function inferRenderedComponentFromTool(
     if (!raw) return null;
 
     try {
-      const parsed = JSON.parse(raw);
+      const parsed = tryParseJsonFromText(raw);
       if (!parsed || typeof parsed !== "object" || !parsed.data) return null;
       
       const { data, summary } = parsed as any;

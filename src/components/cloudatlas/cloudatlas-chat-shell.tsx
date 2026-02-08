@@ -5,7 +5,6 @@ import { DemoPromptsPanel } from "./demo-prompts-panel";
 import { cn } from "@/lib/utils";
 import { Moon, Sun, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import * as React from "react";
-import { AssistantCharacter } from "./assistant-character";
 
 const THEME_KEY = "cloudatlas-theme";
 
@@ -24,7 +23,6 @@ export function CloudAtlasChatShell({
 }: CloudAtlasChatShellProps) {
   // Default to dark theme; override from localStorage if user chose light
   const [dark, setDark] = React.useState(true);
-  const [assistantVisible, setAssistantVisible] = React.useState(true);
   const [promptsPanelVisible, setPromptsPanelVisible] = React.useState(true);
   const inputRef = React.useRef<HTMLInputElement | HTMLTextAreaElement>(null);
 
@@ -154,36 +152,6 @@ export function CloudAtlasChatShell({
             </button>
           </div>
         )}
-      </div>
-
-      {/* Floating assistant orb - fixed, theme-aware, moved to left side but away from sidebar */}
-      <div className="fixed bottom-5 left-20 z-50 flex items-center gap-2 pointer-events-none">
-        <div className="pointer-events-auto">
-          {assistantVisible ? (
-            <button
-              type="button"
-              onClick={() => setAssistantVisible(false)}
-              className="rounded-full focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background block transition-shadow hover:opacity-90"
-              aria-label="Hide assistant"
-            >
-              <AssistantCharacter size="md" className="cursor-pointer" />
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setAssistantVisible(true)}
-              className={cn(
-                "w-14 h-14 rounded-full flex items-center justify-center transition-all duration-200",
-                dark
-                  ? "bg-[#161b22] text-[#58a6ff] border border-[#30363d] hover:border-[#58a6ff]/50 hover:bg-[#21262d] shadow-lg shadow-black/20"
-                  : "bg-primary text-primary-foreground hover:bg-primary/90 border-2 border-primary shadow-lg"
-              )}
-              aria-label="Show assistant"
-            >
-              <span className="text-xl font-medium">+</span>
-            </button>
-          )}
-        </div>
       </div>
     </div>
   );

@@ -14,7 +14,6 @@ import {
 import { cn } from "@/lib/utils";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import * as React from "react";
-import { AssistantCharacter } from "./assistant-character";
 
 export interface CloudAtlasLayoutProps {
   children: React.ReactNode;
@@ -22,8 +21,6 @@ export interface CloudAtlasLayoutProps {
   canvas?: React.ReactNode;
   /** Chat panel width when open */
   chatWidth?: string;
-  /** Show assistant character */
-  showAssistant?: boolean;
   /** Initial chat open state */
   defaultChatOpen?: boolean;
   className?: string;
@@ -37,12 +34,10 @@ export function CloudAtlasLayout({
   children,
   canvas,
   chatWidth = "380px",
-  showAssistant = true,
   defaultChatOpen = true,
   className,
 }: CloudAtlasLayoutProps) {
   const [isChatOpen, setIsChatOpen] = React.useState(defaultChatOpen);
-  const [assistantVisible, setAssistantVisible] = React.useState(true);
 
   return (
     <div
@@ -123,26 +118,6 @@ export function CloudAtlasLayout({
           )}
         </button>
       </div>
-
-      {/* Floating assistant character; click to toggle visibility */}
-      {showAssistant && (
-        <button
-          type="button"
-          onClick={() => setAssistantVisible((v) => !v)}
-          className={cn(
-            "fixed bottom-6 right-6 z-40 rounded-full focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background",
-            !assistantVisible &&
-              "w-12 h-12 flex items-center justify-center bg-muted/80 text-muted-foreground hover:bg-muted border border-border"
-          )}
-          aria-label={assistantVisible ? "Hide assistant" : "Show assistant"}
-        >
-          {assistantVisible ? (
-            <AssistantCharacter size="sm" className="cursor-pointer" />
-          ) : (
-            <span className="text-lg leading-none">+</span>
-          )}
-        </button>
-      )}
     </div>
   );
 }

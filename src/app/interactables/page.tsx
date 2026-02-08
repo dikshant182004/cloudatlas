@@ -33,7 +33,6 @@ export default function InteractablesPage() {
       tamboUrl={process.env.NEXT_PUBLIC_TAMBO_URL}
     >
       <CloudAtlasLayout
-        showAssistant
         defaultChatOpen
         chatWidth="380px"
       >

@@ -1,4 +1,3 @@
-export { AssistantCharacter } from "./assistant-character";
 export { CloudAtlasChatShell } from "./cloudatlas-chat-shell";
 export { CloudAtlasLayout } from "./cloudatlas-layout";
 export { DemoPromptsPanel } from "./demo-prompts-panel";
