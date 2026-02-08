@@ -11,6 +11,7 @@ import { TamboProvider } from "@tambo-ai/react";
 export default function ChatPage() {
   const mcpServers = useMcpServers();
   const apiKey = process.env.NEXT_PUBLIC_TAMBO_API_KEY;
+  const tamboUrl = process.env.NEXT_PUBLIC_TAMBO_URL;
 
   if (!apiKey) {
     return (
@@ -30,8 +31,10 @@ export default function ChatPage() {
       apiKey={apiKey}
       components={components}
       tools={tools}
-      tamboUrl={process.env.NEXT_PUBLIC_TAMBO_URL}
       mcpServers={mcpServers}
+      {...(typeof tamboUrl === "string" && tamboUrl.trim().length > 0
+        ? { tamboUrl }
+        : {})}
     >
       <CloudAtlasChatShell />
     </TamboProvider>

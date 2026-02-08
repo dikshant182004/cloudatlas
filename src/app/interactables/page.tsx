@@ -11,6 +11,7 @@ import { TamboProvider } from "@tambo-ai/react";
  */
 export default function InteractablesPage() {
   const apiKey = process.env.NEXT_PUBLIC_TAMBO_API_KEY;
+  const tamboUrl = process.env.NEXT_PUBLIC_TAMBO_URL;
 
   if (!apiKey) {
     return (
@@ -30,7 +31,9 @@ export default function InteractablesPage() {
       apiKey={apiKey}
       components={components}
       tools={tools}
-      tamboUrl={process.env.NEXT_PUBLIC_TAMBO_URL}
+      {...(typeof tamboUrl === "string" && tamboUrl.trim().length > 0
+        ? { tamboUrl }
+        : {})}
     >
       <CloudAtlasLayout
         defaultChatOpen

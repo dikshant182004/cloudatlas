@@ -228,6 +228,7 @@ export const NVLGraphExplorer: React.FC<NVLGraphExplorerProps> = ({ data, classN
   const [selectedEdge, setSelectedEdge] = useState<GraphEdge | null>(null);
   const [focusContext, setFocusContext] = useState<FocusContext>(null);
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
+  const [renderError, setRenderError] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const visualizationRef = useRef<any>(null);
 
@@ -347,8 +348,25 @@ export const NVLGraphExplorer: React.FC<NVLGraphExplorerProps> = ({ data, classN
   // Initialize NVL visualization (per NVL docs: container element, nodes array, relationships array)
   useEffect(() => {
     if (!isGraphReady) return;
+    if (renderError) return;
     const container = containerRef.current;
     if (!container) return;
+
+    // Basic WebGL capability check (prevents hard crashes on some devices/browsers)
+    try {
+      const canvas = document.createElement("canvas");
+      const gl =
+        canvas.getContext("webgl2") ||
+        canvas.getContext("webgl") ||
+        canvas.getContext("experimental-webgl");
+      if (!gl) {
+        setRenderError("WebGL is not available in this browser/environment.");
+        return;
+      }
+    } catch {
+      setRenderError("WebGL initialization failed.");
+      return;
+    }
 
     // Always destroy previous instance before creating a new one
     if (visualizationRef.current) {
@@ -447,7 +465,18 @@ export const NVLGraphExplorer: React.FC<NVLGraphExplorerProps> = ({ data, classN
             };
           });
 
-        const visualization = new NVLClass(container, nvlNodes, nvlRelationships);
+        let visualization: any;
+        try {
+          visualization = new NVLClass(container, nvlNodes, nvlRelationships);
+        } catch (e: any) {
+          setRenderError(
+            typeof e?.message === "string"
+              ? e.message
+              : "Graph renderer failed to initialize.",
+          );
+          return;
+        }
+
         visualizationRef.current = visualization;
 
         // Optional: if hit-testing is available, allow click-to-select on graph.
@@ -510,7 +539,7 @@ export const NVLGraphExplorer: React.FC<NVLGraphExplorerProps> = ({ data, classN
         }
       })
       .catch(() => {
-        // ignore
+        setRenderError("Failed to load graph renderer.");
       });
 
     return () => {
@@ -561,6 +590,15 @@ export const NVLGraphExplorer: React.FC<NVLGraphExplorerProps> = ({ data, classN
           style={{ background: "#030712", touchAction: "none", userSelect: "none" }}
           tabIndex={0}
         />
+
+        {renderError && (
+          <div className="absolute inset-0 flex items-center justify-center p-6">
+            <div className="max-w-md w-full rounded-lg border border-gray-700 bg-gray-900/90 p-4 text-sm text-gray-200">
+              <div className="font-medium mb-1">Graph unavailable</div>
+              <div className="text-gray-400 break-words">{renderError}</div>
+            </div>
+          </div>
+        )}
 
         {!isGraphReady && (
           <div className="absolute inset-0 flex items-center justify-center">
